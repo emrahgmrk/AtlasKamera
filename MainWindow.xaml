@@ -98,9 +98,8 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <!-- Yeni sürüm yayımlanınca belirir (GitHub Releases) -->
                     <Button x:Name="GuncellemeDugme" Style="{StaticResource UstDugme}"
-                            Visibility="Collapsed" Click="Guncelleme_Click"
-                            Background="#166534" Content="Güncelleme var"
-                            ToolTip="Yeni sürümü indir ve kur"/>
+                            Click="Guncelleme_Click" Content="Güncellemeleri denetle"
+                            ToolTip="Yeni sürüm var mı diye bakar; varsa indirip kurar"/>
                     <TextBlock x:Name="DurumYazisi" Text="" Foreground="#64748B" FontSize="11"
                                VerticalAlignment="Center" Margin="12,0,12,0"/>
                     <Button Style="{StaticResource UstDugme}" Content="Kameralar" Click="Kameralar_Click"/>

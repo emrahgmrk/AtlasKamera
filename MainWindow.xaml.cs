@@ -101,20 +101,43 @@ public partial class MainWindow : Window
         z.Start();
     }
 
-    private async System.Threading.Tasks.Task GuncellemeDenetle()
+    /// <param name="elle">
+    /// Kullanıcı kendi istediyse sonuç ne olursa olsun bildirilir; otomatik
+    /// denetimde yalnız yeni sürüm varsa düğme belirir.
+    /// </param>
+    private async System.Threading.Tasks.Task GuncellemeDenetle(bool elle = false)
     {
+        if (elle) GuncellemeDugme.Content = "Denetleniyor…";
         var surum = await Guncelleyici.YeniSurumVarMi();
-        if (surum is null) return;
+
+        if (surum is null)
+        {
+            if (elle)
+            {
+                GuncellemeDugme.Content = "Güncellemeleri denetle";
+                MessageBox.Show(this,
+                    $"Kullandığınız sürüm güncel ({Guncelleyici.SuAnkiSurum}).",
+                    "Güncelleme", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            return;
+        }
+
         _yeniSurum = surum;
         GuncellemeDugme.Content = $"Güncelleme: {surum.Etiket}";
-        GuncellemeDugme.Visibility = Visibility.Visible;
+        GuncellemeDugme.Background = new System.Windows.Media.SolidColorBrush(
+            System.Windows.Media.Color.FromRgb(0x16, 0x65, 0x34));
         Gunluk.Yaz($"yeni sürüm yayımlanmış: {surum.Etiket} " +
                    $"(çalışan: {Guncelleyici.SuAnkiSurum})");
     }
 
     private async void Guncelleme_Click(object sender, RoutedEventArgs e)
     {
-        if (_yeniSurum is null) return;
+        // Henüz yeni sürüm bilinmiyorsa düğme "denetle" işlevi görür
+        if (_yeniSurum is null)
+        {
+            await GuncellemeDenetle(elle: true);
+            return;
+        }
         var s = _yeniSurum;
 
         var notlar = string.IsNullOrWhiteSpace(s.Notlar) ? "" : "\n\n" + s.Notlar.Trim();

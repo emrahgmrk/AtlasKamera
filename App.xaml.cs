@@ -32,6 +32,18 @@ public partial class App : Application
             return;
         }
 
+        // Dışa aktarma kipi: AtlasKamera.exe --disa-aktar <dosya> [parola]
+        // Kamera listesini dağıtım paketine koymak için arayüz açmadan çalışır.
+        var disa = Array.FindIndex(e.Args, a =>
+            a.Equals("--disa-aktar", StringComparison.OrdinalIgnoreCase));
+        if (disa >= 0)
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            DisaAktar(e.Args.Skip(disa + 1).ToArray());
+            Environment.Exit(0);
+            return;
+        }
+
         // Yakalanmamış hata uygulamayı kapatmasın: tek bir kameranın hatası
         // yüzünden bütün duvarın gitmesi kabul edilemez.
         Gunluk.YakalayicilariKur(this);
@@ -41,6 +53,45 @@ public partial class App : Application
         var pencere = new MainWindow();
         MainWindow = pencere;
         pencere.Show();
+    }
+
+    /// <summary>
+    /// Kamera listesini XML'e yazar (arayüzsüz).
+    ///
+    /// Parola verilirse kamera parolaları da pakete girer; o parola hedef
+    /// bilgisayarda içe aktarırken sorulur. Verilmezse parolalar boş kalır
+    /// ve her bilgisayarda elle girilmesi gerekir.
+    /// </summary>
+    private static void DisaAktar(string[] args)
+    {
+        if (!AttachConsole(-1)) AllocConsole();
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+        if (args.Length == 0)
+        {
+            Console.WriteLine("Kullanım: AtlasKamera.exe --disa-aktar <dosya.xml> [aktarma-parolası]");
+            return;
+        }
+
+        var dosya = args[0];
+        var parola = args.Length > 1 ? args[1] : null;
+
+        var depo = new KameraDepo();
+        try
+        {
+            depo.Yukle();
+            depo.DisaAktar(dosya, depo.Kameralar, parola);
+            Console.WriteLine();
+            Console.WriteLine($"{depo.Kameralar.Count} kamera aktarıldı: {dosya}");
+            Console.WriteLine(parola is null
+                ? "Parolalar aktarılmadı — hedef bilgisayarda elle girilmeli."
+                : "Parolalar şifreli olarak aktarıldı; içe aktarırken aynı parola sorulacak.");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Aktarılamadı: " + e.Message);
+        }
+        FreeConsole();
     }
 
     private static async Task SinamaCalistir(string[] args)
