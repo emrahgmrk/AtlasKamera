@@ -1,0 +1,160 @@
+<UserControl x:Class="AtlasKamera.Gorunum.KameraKarti"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
+             Background="#0B0E14">
+    <UserControl.Resources>
+        <Style x:Key="AracDugmesi" TargetType="Button">
+            <Setter Property="MinWidth" Value="26"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="Padding" Value="5,0"/>
+            <Setter Property="Margin" Value="2,0,0,0"/>
+            <Setter Property="Foreground" Value="#E6EAF2"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="k" CornerRadius="5" Background="#B3161B26"
+                                BorderBrush="#4DFFFFFF" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="k" Property="Background" Value="#CC2563EB"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="PtzDugmesi" TargetType="RepeatButton">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="1"/>
+            <Setter Property="Foreground" Value="#E6EAF2"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Delay" Value="2000000"/>
+            <Setter Property="Interval" Value="2000000"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RepeatButton">
+                        <Border x:Name="k" CornerRadius="4" Background="#A6161B26"
+                                BorderBrush="#33FFFFFF" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="k" Property="Background" Value="#CC2563EB"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Border BorderBrush="#1E2430" BorderThickness="1" CornerRadius="6"
+            ClipToBounds="True" Background="#0B0E14">
+        <!--
+            Video penceresi yerel (HWND) olduğundan WPF öğeleri onun ÜSTÜNE
+            çizilemez. VideoView bunun için içeriğini ayrı bir katman
+            penceresinde gösterir: başlık, araçlar, PTZ ve "görüntü yok" paneli
+            bu yüzden VideoView'in İÇİNDE durur, kardeşi olarak değil.
+            Kardeş olarak denendi ve kartlar bembeyaz kaldı.
+        -->
+        <vlc:VideoView x:Name="Video" Background="Black">
+            <Grid>
+                <!-- Görüntü yokken: koyu zemin + durum -->
+                <Grid x:Name="BosPanel" Background="#0B0E14">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
+                        <TextBlock x:Name="DurumBaslik" Text="Bağlanıyor…" Foreground="#9AA4B2"
+                                   FontSize="13" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="DurumAyrinti" Text="" Foreground="#64748B" FontSize="11"
+                                   HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="300"
+                                   TextAlignment="Center" Margin="0,4,0,0"/>
+                        <Button x:Name="YenidenDene" Content="Yeniden dene" Margin="0,10,0,0"
+                                Padding="10,4" Visibility="Collapsed" Click="YenidenDene_Click"
+                                Background="#1E293B" Foreground="#E6EAF2" BorderBrush="#334155"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Üst şerit: ad, konum, akış rozeti -->
+                <Border VerticalAlignment="Top" Background="#8C0B0E14" Padding="8,4">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse x:Name="DurumNoktasi" Width="7" Height="7" Fill="#64748B"
+                                     VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="AdYazisi" Text="Kamera" Foreground="#E6EAF2"
+                                       FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="KonumYazisi" Text="" Foreground="#94A3B8"
+                                       FontSize="11" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                        </StackPanel>
+                        <TextBlock x:Name="AkisRozeti" Text="" Foreground="#64748B" FontSize="10"
+                                   HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- Araçlar HEP görünür. Eskiden fare kartın üzerine gelince
+                     beliriyorlardı; ama araçlar video penceresinin üstündeki ayrı
+                     katmanda durduğundan, fare bir düğmeye girdiği anda kartın
+                     MouseLeave olayı tetikleniyor, araçlar gizleniyor, fare
+                     düğmenin üstünde kalmadığı için yeniden beliriyordu —
+                     düğmeler sürekli yanıp sönüyor ve tıklanamıyordu. -->
+                <StackPanel x:Name="Araclar" Orientation="Horizontal" HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom" Margin="6" Opacity="0.85">
+                    <Button x:Name="AkisDugme" Style="{StaticResource AracDugmesi}" Content="SD"
+                            ToolTip="Alt akış / ana akış arasında geçiş" Click="AkisDugme_Click"/>
+                    <Button x:Name="DoldurDugme" Style="{StaticResource AracDugmesi}" Content="⛶"
+                            ToolTip="Ekranı doldur (kenarlardaki siyah bandı kaldırır)"
+                            Click="DoldurDugme_Click"/>
+                    <Button x:Name="PtzDugme" Style="{StaticResource AracDugmesi}" Content="✥"
+                            ToolTip="Kamerayı yönlendir (PTZ)" Click="PtzDugme_Click"/>
+                    <Button Style="{StaticResource AracDugmesi}" Content="⟳"
+                            ToolTip="Akışı yenile" Click="Yenile_Click"/>
+                    <Button x:Name="BuyutDugme" Style="{StaticResource AracDugmesi}" Content="🗖"
+                            ToolTip="Büyüt (çift tık)" Click="Buyut_Click"/>
+                </StackPanel>
+
+                <!-- PTZ tuş takımı -->
+                <Border x:Name="PtzPaneli" Visibility="Collapsed" HorizontalAlignment="Left"
+                        VerticalAlignment="Bottom" Margin="6" Padding="6"
+                        Background="#A60B0E14" CornerRadius="6" BorderBrush="#33FFFFFF" BorderThickness="1">
+                    <StackPanel>
+                        <UniformGrid Rows="3" Columns="3">
+                            <RepeatButton Style="{StaticResource PtzDugmesi}" Content="↖" Tag="SolYukari"
+                                          PreviewMouseLeftButtonDown="Ptz_Bas" PreviewMouseLeftButtonUp="Ptz_Birak"/>
+                            <RepeatButton Style="{StaticResource PtzDugmesi}" Content="↑" Tag="Yukari"
+                                          PreviewMouseLeftButtonDown="Ptz_Bas" PreviewMouseLeftButtonUp="Ptz_Birak"/>
+                            <RepeatButton Style="{StaticResource PtzDugmesi}" Content="↗" Tag="SagYukari"
+                                          PreviewMouseLeftButtonDown="Ptz_Bas" PreviewMouseLeftButtonUp="Ptz_Birak"/>
+                            <RepeatButton Style="{StaticResource PtzDugmesi}" Content="←" Tag="Sol"
+                                          PreviewMouseLeftButtonDown="Ptz_Bas" PreviewMouseLeftButtonUp="Ptz_Birak"/>
+                            <Border/>
+                            <RepeatButton Style="{StaticResource PtzDugmesi}" Content="→" Tag="Sag"
+                                          PreviewMouseLeftButtonDown="Ptz_Bas" PreviewMouseLeftButtonUp="Ptz_Birak"/>
+                            <RepeatButton Style="{StaticResource PtzDugmesi}" Content="↙" Tag="SolAsagi"
+                                          PreviewMouseLeftButtonDown="Ptz_Bas" PreviewMouseLeftButtonUp="Ptz_Birak"/>
+                            <RepeatButton Style="{StaticResource PtzDugmesi}" Content="↓" Tag="Asagi"
+                                          PreviewMouseLeftButtonDown="Ptz_Bas" PreviewMouseLeftButtonUp="Ptz_Birak"/>
+                            <RepeatButton Style="{StaticResource PtzDugmesi}" Content="↘" Tag="SagAsagi"
+                                          PreviewMouseLeftButtonDown="Ptz_Bas" PreviewMouseLeftButtonUp="Ptz_Birak"/>
+                        </UniformGrid>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,0">
+                            <RepeatButton Style="{StaticResource PtzDugmesi}" Content="＋" Tag="Yakinlas"
+                                          ToolTip="Yakınlaş"
+                                          PreviewMouseLeftButtonDown="Ptz_Bas" PreviewMouseLeftButtonUp="Ptz_Birak"/>
+                            <RepeatButton Style="{StaticResource PtzDugmesi}" Content="－" Tag="Uzaklas"
+                                          ToolTip="Uzaklaş"
+                                          PreviewMouseLeftButtonDown="Ptz_Bas" PreviewMouseLeftButtonUp="Ptz_Birak"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </vlc:VideoView>
+    </Border>
+</UserControl>

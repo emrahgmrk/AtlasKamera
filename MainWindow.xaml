@@ -1,0 +1,149 @@
+<Window x:Class="AtlasKamera.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ATLAS Kamera" Height="860" Width="1480"
+        WindowStartupLocation="CenterScreen" Background="#0B0E14">
+    <Window.Resources>
+        <Style x:Key="UstDugme" TargetType="Button">
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Margin" Value="4,0,0,0"/>
+            <Setter Property="Foreground" Value="#E6EAF2"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="k" CornerRadius="5" Background="#1F2836"
+                                BorderBrush="#36445C" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="k" Property="Background" Value="#2563EB"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="DuzenDugme" TargetType="RadioButton">
+            <Setter Property="Margin" Value="3,0,0,0"/>
+            <Setter Property="Foreground" Value="#9AA4B2"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="k" CornerRadius="5" Background="#1F2836" Padding="10,5"
+                                BorderBrush="#36445C" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="k" Property="Background" Value="#2563EB"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="k" Property="BorderBrush" Value="#2563EB"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Üst çubuk -->
+        <Border x:Name="UstCubuk" Grid.Row="0" Background="#11151E" Padding="10,7"
+                BorderBrush="#1E2430" BorderThickness="0,0,0,1">
+            <Grid>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="ATLAS Kamera" Foreground="#E6EAF2" FontSize="14"
+                               FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                    <TextBlock Text="Düzen" Foreground="#64748B" FontSize="11"
+                               VerticalAlignment="Center"/>
+                    <RadioButton x:Name="Duzen1" Style="{StaticResource DuzenDugme}" Content="1"
+                                 GroupName="duzen" Checked="Duzen_Degisti" Tag="1"
+                                 ToolTip="Tek kamera (1 tuşu)"/>
+                    <RadioButton x:Name="Duzen4" Style="{StaticResource DuzenDugme}" Content="2×2"
+                                 GroupName="duzen" Checked="Duzen_Degisti" Tag="4" IsChecked="True"
+                                 ToolTip="Sayfa başına 4 kamera (2 tuşu)"/>
+                    <RadioButton x:Name="Duzen9" Style="{StaticResource DuzenDugme}" Content="3×3"
+                                 GroupName="duzen" Checked="Duzen_Degisti" Tag="9"
+                                 ToolTip="Sayfa başına 9 kamera (3 tuşu)"/>
+                    <RadioButton x:Name="Duzen16" Style="{StaticResource DuzenDugme}" Content="4×4"
+                                 GroupName="duzen" Checked="Duzen_Degisti" Tag="16"
+                                 ToolTip="Sayfa başına 16 kamera (4 tuşu)"/>
+                    <RadioButton x:Name="DuzenHepsi" Style="{StaticResource DuzenDugme}" Content="Tümü"
+                                 GroupName="duzen" Checked="Duzen_Degisti" Tag="0"
+                                 ToolTip="Bütün kameralar tek sayfada (0 tuşu)"/>
+
+                    <Border Width="1" Background="#263041" Margin="12,2,8,2"/>
+                    <CheckBox x:Name="YalnizCanli" Content="Yalnız canlı" Foreground="#9AA4B2"
+                              FontSize="12" VerticalAlignment="Center" Cursor="Hand"
+                              Checked="YalnizCanli_Degisti" Unchecked="YalnizCanli_Degisti"
+                              ToolTip="Görüntü vermeyen kameraları duvarda gösterme (G tuşu).&#x0a;Gizlenen kameralar arka planda bağlanmayı denemeye devam eder."/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <!-- Yeni sürüm yayımlanınca belirir (GitHub Releases) -->
+                    <Button x:Name="GuncellemeDugme" Style="{StaticResource UstDugme}"
+                            Visibility="Collapsed" Click="Guncelleme_Click"
+                            Background="#166534" Content="Güncelleme var"
+                            ToolTip="Yeni sürümü indir ve kur"/>
+                    <TextBlock x:Name="DurumYazisi" Text="" Foreground="#64748B" FontSize="11"
+                               VerticalAlignment="Center" Margin="12,0,12,0"/>
+                    <Button Style="{StaticResource UstDugme}" Content="Kameralar" Click="Kameralar_Click"/>
+                    <Button Style="{StaticResource UstDugme}" Content="Yenile" Click="TumunuYenile_Click"
+                            ToolTip="Bu sayfadaki akışları yeniden kur"/>
+                    <Button Style="{StaticResource UstDugme}" Content="Tam ekran" Click="TamEkran_Click"
+                            ToolTip="F11"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Duvar -->
+        <Grid Grid.Row="1">
+            <UniformGrid x:Name="Duvar" Columns="2" Margin="4"/>
+
+            <StackPanel x:Name="BosMesaj" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Visibility="Collapsed">
+                <TextBlock Text="Henüz kamera eklenmedi." Foreground="#9AA4B2" FontSize="15"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Hikvision / Dahua NVR kanallarını veya Dahua P2P cihazlarını ekleyin."
+                           Foreground="#64748B" FontSize="12" Margin="0,6,0,0" HorizontalAlignment="Center"/>
+                <Button Style="{StaticResource UstDugme}" Content="Kamera ekle" Margin="0,14,0,0"
+                        Padding="16,7" HorizontalAlignment="Center" Click="Kameralar_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Alt çubuk: sayfa gezintisi -->
+        <Border x:Name="AltCubuk" Grid.Row="2" Background="#11151E" Padding="10,5"
+                BorderBrush="#1E2430" BorderThickness="0,1,0,0">
+            <Grid>
+                <TextBlock x:Name="AltYazi" Foreground="#64748B" FontSize="11"
+                           VerticalAlignment="Center"
+                           Text="Çift tıkla büyüt · Esc küçült · F11 tam ekran · 1-4 düzen"/>
+                <StackPanel x:Name="SayfaCubugu" Orientation="Horizontal" HorizontalAlignment="Right"
+                            VerticalAlignment="Center" Visibility="Collapsed">
+                    <Button x:Name="OncekiSayfa" Style="{StaticResource UstDugme}" Content="◀"
+                            Click="OncekiSayfa_Click" ToolTip="Önceki sayfa (PgUp / ←)"/>
+                    <TextBlock x:Name="SayfaYazisi" Text="" Foreground="#9AA4B2" FontSize="12"
+                               VerticalAlignment="Center" Margin="10,0"/>
+                    <Button x:Name="SonrakiSayfa" Style="{StaticResource UstDugme}" Content="▶"
+                            Click="SonrakiSayfa_Click" ToolTip="Sonraki sayfa (PgDn / →)"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

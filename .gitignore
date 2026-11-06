@@ -1,0 +1,15 @@
+# Derleme çıktıları
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Dağıtım paketi (Releases üzerinden yayınlanır)
+/yayin/
+*.zip
+
+# dh-p2p.exe üçüncü taraf ikili dosyadır (Dahua P2P tüneli, ATLAS'ın yamalı
+# derlemesi). Depoda tutulmaz; dağıtım paketine eklenir ve uygulama
+# C:\ATLAS\kamera altında da arar.
+dh-p2p.exe
